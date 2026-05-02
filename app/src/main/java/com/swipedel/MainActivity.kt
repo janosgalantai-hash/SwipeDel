@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -50,7 +52,7 @@ import kotlin.math.abs
 // ─── Models ────────────────────────────────────────────────────────────────────
 
 data class MediaImage(val uri: Uri, val id: Long, val name: String)
-enum class Screen { SWIPE, TRASH }
+enum class Screen { SWIPE, TRASH, BROWSE }
 
 // ─── TrashManager ──────────────────────────────────────────────────────────────
 // Tracks which originals were moved to the in-app trash folder.
@@ -154,6 +156,12 @@ fun SwipeDelApp() {
                 "Storage permission required\nto access photos",
                 color = Color.White, fontSize = 18.sp, textAlign = TextAlign.Center
             )
+            screen == Screen.BROWSE -> BrowseScreen(
+                images = images,
+                currentIndex = currentIndex,
+                onSelect = { index -> currentIndex = index; screen = Screen.SWIPE },
+                onBack = { screen = Screen.SWIPE }
+            )
             screen == Screen.TRASH -> TrashScreen(
                 context = context,
                 onBack = { reloadImages(); screen = Screen.SWIPE }
@@ -182,6 +190,7 @@ fun SwipeDelApp() {
                 },
                 onSwipeRight = { currentIndex++ },
                 onOpenTrash = { screen = Screen.TRASH },
+                onOpenBrowse = { screen = Screen.BROWSE },
                 onExit = { (context as? android.app.Activity)?.finishAndRemoveTask() }
             )
         }
@@ -197,6 +206,7 @@ fun SwipeScreen(
     onSwipeLeft: () -> Unit,
     onSwipeRight: () -> Unit,
     onOpenTrash: () -> Unit,
+    onOpenBrowse: () -> Unit,
     onExit: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -312,9 +322,23 @@ fun SwipeScreen(
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
                 .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(80.dp)
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             ActionHint(R.drawable.ic_arrow_left, "Delete", Color(0xFFFF4444))
+            IconButton(
+                onClick = onOpenBrowse,
+                modifier = Modifier
+                    .size(52.dp)
+                    .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(50))
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_grid),
+                    contentDescription = "Browse all",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             ActionHint(R.drawable.ic_arrow_right, "Keep", Color(0xFF44CC44))
         }
     }
@@ -491,6 +515,101 @@ fun TrashScreen(context: Context, onBack: () -> Unit) {
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
+            }
+        }
+    }
+}
+
+// ─── Browse Screen ─────────────────────────────────────────────────────────────
+
+@Composable
+fun BrowseScreen(
+    images: List<MediaImage>,
+    currentIndex: Int,
+    onSelect: (Int) -> Unit,
+    onBack: () -> Unit,
+) {
+    val gridState = rememberLazyGridState()
+
+    // Scroll to current position on open
+    LaunchedEffect(Unit) {
+        if (currentIndex > 0) {
+            gridState.scrollToItem(
+                index = (currentIndex - 4).coerceAtLeast(0)
+            )
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(onClick = onBack) {
+                    Text("← Back", color = Color.White, fontSize = 16.sp)
+                }
+                Text(
+                    "${images.size} photos  ·  tap to jump",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 13.sp
+                )
+                Spacer(Modifier.width(60.dp))
+            }
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                state = gridState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(2.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                itemsIndexed(images) { index, image ->
+                    val isCurrent = index == currentIndex
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .fillMaxWidth()
+                            .clickable { onSelect(index) }
+                            .then(
+                                if (isCurrent) Modifier.border(2.dp, Color.White, RoundedCornerShape(3.dp))
+                                else Modifier
+                            )
+                    ) {
+                        AsyncImage(
+                            model = image.uri,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        // Dim already-passed photos
+                        if (index < currentIndex) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.45f))
+                            )
+                        }
+                        // Current marker
+                        if (isCurrent) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .fillMaxWidth()
+                                    .background(Color.White.copy(alpha = 0.85f))
+                                    .padding(vertical = 2.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("HERE", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
