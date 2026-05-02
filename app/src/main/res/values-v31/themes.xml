@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SwipeDel" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Hide the system splash icon — black background only, transitions into our custom splash -->
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_transparent</item>
+    </style>
+</resources>
