@@ -325,12 +325,12 @@ fun SwipeScreen(
             horizontalArrangement = Arrangement.spacedBy(32.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ActionHint(R.drawable.ic_arrow_left, "Delete", Color(0xFFFF4444))
+            ActionHint(R.drawable.ic_arrow_left, "Delete", Color(0xFFFF4444), onClick = onSwipeLeft)
             IconButton(
                 onClick = onOpenBrowse,
                 modifier = Modifier
                     .size(52.dp)
-                    .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(50))
+                    .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_grid),
@@ -339,7 +339,7 @@ fun SwipeScreen(
                     modifier = Modifier.size(24.dp)
                 )
             }
-            ActionHint(R.drawable.ic_arrow_right, "Keep", Color(0xFF44CC44))
+            ActionHint(R.drawable.ic_arrow_right, "Keep", Color(0xFF44CC44), onClick = onSwipeRight)
         }
     }
 }
@@ -618,10 +618,11 @@ fun BrowseScreen(
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 @Composable
-fun ActionHint(iconRes: Int, label: String, tint: Color) {
+fun ActionHint(iconRes: Int, label: String, tint: Color, onClick: () -> Unit = {}) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .clickable { onClick() }
             .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {

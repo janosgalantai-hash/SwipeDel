@@ -4,7 +4,6 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Circle (finger / touch point) — Tabler Icons "swipe-left", MIT license -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="#FFFFFF"
@@ -13,7 +12,6 @@
         android:strokeLineJoin="round"
         android:pathData="M20,12a4,4 0,1 0,-8,0a4,4 0,0 0,8,0"/>
 
-    <!-- Arrow shaft -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="#FFFFFF"
@@ -22,7 +20,6 @@
         android:strokeLineJoin="round"
         android:pathData="M12,12 L4,12"/>
 
-    <!-- Arrow head -->
     <path
         android:fillColor="@android:color/transparent"
         android:strokeColor="#FFFFFF"

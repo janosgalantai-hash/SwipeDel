@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#1A1A1A"/>
+  <!-- Icon scaled: viewport 24x24 centered with padding, scale=18 -->
+  <!-- Circle at (16,12) r=4 -> center (380,256) r=72 -->
+  <circle cx="380" cy="256" r="72" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
+  <!-- Arrow shaft: (12,12)->(4,12) -> (308,256) to (164,256) -->
+  <line x1="308" y1="256" x2="164" y2="256" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
+  <!-- Arrow head: (7,15),(4,12),(7,9) -> (218,310),(164,256),(218,202) -->
+  <polyline points="218,310 164,256 218,202" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
