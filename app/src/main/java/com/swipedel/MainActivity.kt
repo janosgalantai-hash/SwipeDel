@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.imageLoader
+import coil.request.ImageRequest
 import com.swipedel.ui.theme.SwipeDelTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -178,7 +180,17 @@ fun SwipeDelApp() {
                     Text("View Trash", color = Color.White)
                 }
             }
-            else -> SwipeScreen(
+            else -> {
+                // Preload next image in background
+                val nextIndex = currentIndex + 1
+                if (nextIndex < images.size) {
+                    val nextUri = images[nextIndex].uri
+                    LaunchedEffect(nextUri) {
+                        val req = ImageRequest.Builder(context).data(nextUri).build()
+                        context.imageLoader.enqueue(req)
+                    }
+                }
+                SwipeScreen(
                 image = images[currentIndex],
                 progress = "${currentIndex + 1} / ${images.size}",
                 onSwipeLeft = {
@@ -193,6 +205,7 @@ fun SwipeDelApp() {
                 onOpenBrowse = { screen = Screen.BROWSE },
                 onExit = { (context as? android.app.Activity)?.finishAndRemoveTask() }
             )
+            }
         }
     }
 }
